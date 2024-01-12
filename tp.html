@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #quiz-container {
+            max-width: 600px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        div {
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #result-container {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="quiz-container">
+        <!-- Questions and Options will be dynamically inserted here -->
+    </div>
+    <div id="result-container">
+        <h2>Your Final Score: <span id="final-score">0</span></h2>
+        <p id="mental-health-message"></p>
+    </div>
+    <script>
+
+        // Replace this with the actual CSV data
+        const quizData = [
+            {
+                QID: 'MHQ011',
+                Question: "When exams stress you out, what do you usually do?",
+                Options: [
+                    "Talk to a teacher or counsellor (+5)",
+                    "Make a study plan and stick to it (+3)",
+                    "Keep the stress to yourself",
+                    "Avoid studying because it's too much"
+                ],
+                Correct5: "Make a study plan and stick to it",
+                Correct3: "Talk to a teacher or counsellor"
+        },
+        {
+            QID: 'MHQ012',
+            Question: "If you're feeling sad, who would you want to talk to first?",
+            Options: [
+                "A close friend or family member (+5)",
+                "A teacher or school counsellor (+3)",
+                "Keep your feelings to yourself",
+                "Not sure or wouldn't talk to anyone"
+            ],
+            Correct5: "A close friend or family member",
+            Correct3: "A teacher or school counsellor"
+        },
+        {
+            QID: 'MHQ013',
+            Question: "How do you balance schoolwork with relaxing?",
+            Options: [
+                "Take breaks and care for yourself (+5)",
+                "Stick to a study plan and reward yourself (+3)",
+                "Keep studying without breaks",
+                "Struggle to find a balance and feel overwhelmed"
+            ],
+            Correct5: "Take breaks and care for yourself",
+            Correct3: "Stick to a study plan and reward yourself"
+        },
+        {
+            QID: 'MHQ014',
+            Question: "What do you prefer when it comes to working on school projects with others?",
+            Options: [
+                "Enjoy working with others (+5)",
+                "Work with others but feel a bit nervous (+3)",
+                "Prefer working alone",
+                "Feel very nervous and avoid group work"
+            ],
+            Correct5: "Enjoy working with others",
+            Correct3: "Work with others but feel a bit nervous"
+        },
+        {
+            QID: 'MHQ015',
+            Question: "How do you handle changes or unexpected events in your routine?",
+            Options: [
+                "Adapt well and see them as opportunities (+5)",
+                "Feel stressed at first but get used to it (+3)",
+                "Struggle to adapt and like routine",
+                "Feel very anxious and find it hard to cope"
+            ],
+            Correct5: "Adapt well and see them as opportunities",
+            Correct3: "Feel stressed at first but get used to it"
+        },
+        {
+            QID: 'MHQ016',
+            Question: "What's your plan for taking care of yourself during busy times?",
+            Options: [
+                "Make sure to get enough sleep and take breaks (+5)",
+                "Sacrifice sleep to meet deadlines (+3)",
+                "Forget self-care due to too much work",
+                "Often feel overwhelmed and neglect self-care"
+            ],
+            Correct5: "Make sure to get enough sleep and take breaks",
+            Correct3: "Sacrifice sleep to meet deadlines"
+        },
+        {
+            QID: 'MHQ017',
+            Question: "If you see bullying at school, what would you do?",
+            Options: [
+                "Tell a teacher about it (+5)",
+                "Try to help solve the problem (+3)",
+                "Stay out of it to avoid trouble",
+                "Feel unsure how to respond"
+            ],
+            Correct5: "Tell a teacher about it",
+            Correct3: "Try to help solve the problem"
+        },
+        {
+            QID: 'MHQ018',
+            Question: "How do you deal with not doing as well in school as you hoped?",
+            Options: [
+                "Get support from friends, family, or a counsellor (+5)",
+                "Learn from mistakes and try harder (+3)",
+                "Keep it to yourself and try to forget",
+                "Feel really discouraged and consider giving up"
+            ],
+            Correct5: "Get support from friends, family, or a counsellor",
+            Correct3: "Learn from mistakes and try harder"
+        },
+        {
+            QID: 'MHQ019',
+            Question: "What's your sleep like during the school week?",
+            Options: [
+                "Get a good amount of sleep regularly (+5)",
+                "Sometimes have trouble sleeping (+3)",
+                "Often struggle to fall or stay asleep",
+                "Stay up very late or all night regularly"
+            ],
+            Correct5: "Get a good amount of sleep regularly",
+            Correct3: "Sometimes have trouble sleeping"
+        },
+        {
+            QID: 'MHQ020',
+            Question: "How do you react to not doing well in school?",
+            Options: [
+                "Learn from mistakes and try again (+5)",
+                "Feel disappointed but keep going (+3)",
+                "Blame yourself and keep it inside",
+                "Feel overwhelmed and think about giving up"
+            ],
+            Correct5: "Learn from mistakes and try again",
+            Correct3: "Feel disappointed but keep going"
+        },
+        {
+            QID: 'MHQ021',
+            Question: "How do you prepare for a big presentation at school?",
+            Options: [
+                "Practice in front of a mirror and seek feedback from peers (+5)",
+                "Review your notes and hope for the best (+3)",
+                "Avoid preparing and feel nervous about presenting",
+                "Skip the presentation altogether"
+            ],
+            Correct5: "Practice in front of a mirror and seek feedback from peers",
+            Correct3: "Review your notes and hope for the best"
+        },
+        {
+            QID: 'MHQ022',
+            Question: "If you're feeling overwhelmed with schoolwork, what's your first step?",
+            Options: [
+                "Break down tasks into smaller parts and tackle them one by one (+5)",
+                "Keep working continuously, hoping to finish everything (+3)",
+                "Ignore the workload and hope it goes away",
+                "Feel too stressed to do anything about it"
+            ],
+            Correct5: "Break down tasks into smaller parts and tackle them one by one",
+            Correct3: "Keep working continuously, hoping to finish everything"
+        },
+        {
+            QID: 'MHQ023',
+            Question: "How do you respond to a friend who seems upset?",
+            Options: [
+                "Ask them what's wrong and offer support (+5)",
+                "Assume they'll share if they want to and give them space (+3)",
+                "Ignore it and hope they feel better on their own",
+                "Feel unsure about how to approach them"
+            ],
+            Correct5: "Ask them what's wrong and offer support",
+            Correct3: "Assume they'll share if they want to and give them space"
+        },
+        {
+            QID: 'MHQ024',
+            Question: "How do you handle conflicts with friends?",
+            Options: [
+                "Talk to your friend openly about the issue and find a solution together (+5)",
+                "Give it time, and hope the issue resolves itself (+3)",
+                "Avoid confronting your friend to prevent more problems",
+                "Feel upset but keep your feelings to yourself"
+            ],
+            Correct5: "Talk to your friend openly about the issue and find a solution together",
+            Correct3: "Give it time, and hope the issue resolves itself"
+        },
+        {
+            QID: 'MHQ025',
+            Question: "When you're feeling down, what activity usually helps lift your spirits?",
+            Options: [
+                "Engaging in a favourite hobby or activity (+5)",
+                "Watching TV or playing video games to distract yourself (+3)",
+                "Doing nothing and waiting for the sadness to pass",
+                "Not sure, as nothing seems to help"
+            ],
+            Correct5: "Engaging in a favourite hobby or activity",
+            Correct3: "Watching TV or playing video games to distract yourself"
+        },
+        {
+            QID: 'MHQ026',
+            Question: "How do you manage your time when juggling multiple assignments?",
+            Options: [
+                "Create a schedule and prioritize tasks based on deadlines (+5)",
+                "Start working on whatever assignment feels easiest (+3)",
+                "Procrastinate until the last minute",
+                "Feel overwhelmed and unsure where to start"
+            ],
+            Correct5: "Create a schedule and prioritize tasks based on deadlines",
+            Correct3: "Start working on whatever assignment feels easiest"
+        },
+        {
+            QID: 'MHQ027',
+            Question: "What's your approach to handling peer pressure?",
+            Options: [
+                "Stick to your values and say no if it goes against them (+5)",
+                "Sometimes give in to peer pressure, but not always (+3)",
+                "Usually go along with what others want to fit in",
+                "Feel pressured but don't know how to respond"
+            ],
+            Correct5: "Stick to your values and say no if it goes against them",
+            Correct3: "Sometimes give in to peer pressure, but not always"
+        },
+        {
+            QID: 'MHQ028',
+            Question: "How do you react when someone disagrees with you?",
+            Options: [
+                "Listen to their perspective and try to understand their point of view (+5)",
+                "Stick to your opinion and avoid further discussion (+3)",
+                "Get upset and argue your point aggressively",
+                "Feel uncomfortable and avoid disagreement"
+            ],
+            Correct5: "Listen to their perspective and try to understand their point of view",
+            Correct3: "Stick to your opinion and avoid further discussion"
+        },
+        {
+            QID: 'MHQ029',
+            Question: "How do you handle a situation where you make a mistake in front of others?",
+            Options: [
+                "Acknowledge the mistake, learn from it, and move on (+5)",
+                "Downplay the mistake and hope no one notices (+3)",
+                "Feel embarrassed and try to avoid the situation",
+                "Blame others for the mistake"
+            ],
+            Correct5: "Acknowledge the mistake, learn from it, and move on",
+            Correct3: "Downplay the mistake and hope no one notices"
+        },
+        {
+            QID: 'MHQ030',
+            Question: "When you're feeling stressed, what's your go-to relaxation method?",
+            Options: [
+                "Deep breathing exercises or mindfulness (+5)",
+                "Distract yourself with TV or social media (+3)",
+                "Try to push through the stress without taking a break",
+                "Feel too overwhelmed to relax"
+            ],
+            Correct5: "Deep breathing exercises or mindfulness",
+            Correct3: "Distract yourself with TV or social media"
+        }
+    ];
+        // Function to shuffle an array using Fisher-Yates algorithm
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// Shuffle quizData array
+const shuffledQuizData = shuffleArray(quizData);
+
+let currentQuestion = 0;
+let score = 0;
+const quizContainer = document.getElementById('quiz-container');
+const resultContainer = document.getElementById('result-container');
+const finalScoreElement = document.getElementById('final-score');
+let timer;
+const timerDuration = 30; // Set the timer duration in seconds
+
+function displayQuestion() {
+    if (currentQuestion < 10) {
+        const questionData = shuffledQuizData[currentQuestion];
+
+        let optionsHTML = '';
+        const shuffledOptions = shuffleArray(questionData.Options);
+        shuffledOptions.forEach((option, index) => {
+            optionsHTML += `<div><input type="radio" name="option" value="${index}">${option}</div>`;
+        });
+
+        quizContainer.innerHTML = `
+            <h2>${questionData.Question}</h2>
+            <form id="quiz-form">
+                ${optionsHTML}
+                <button type="button" onclick="checkAnswer()">Submit</button>
+            </form>
+            <p id="timer"></p>
+        `;
+
+        startTimer();
+    } else {
+        showResult();
+    }
+}
+
+function startTimer() {
+    let timeLeft = timerDuration;
+    timer = setInterval(() => {
+        document.getElementById('timer').innerText = `Time Left: ${timeLeft} seconds`;
+
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            checkAnswer();
+        }
+
+        timeLeft--;
+    }, 1000);
+}
+
+function checkAnswer() {
+    clearInterval(timer);
+
+    const selectedOption = document.querySelector('input[name="option"]:checked');
+    if (selectedOption) {
+        const selectedOptionIndex = parseInt(selectedOption.value);
+        const questionData = shuffledQuizData[currentQuestion];
+
+        if (questionData.Options[selectedOptionIndex] === questionData.Correct5 ||
+            questionData.Options[selectedOptionIndex] === questionData.Correct3) {
+            if (questionData.Options[selectedOptionIndex] === questionData.Correct5) {
+                score += 5;
+            } else {
+                score += 3;
+            }
+        }
+
+        currentQuestion++;
+        displayQuestion();
+    }
+}
+
+function showResult() {
+    quizContainer.style.display = 'none';
+    resultContainer.style.display = 'block';
+
+    const mentalHealthScore = score * 2;
+
+    finalScoreElement.innerText = mentalHealthScore;
+
+    const mentalHealthMessageElement = document.getElementById('mental-health-message');
+    if (mentalHealthScore < 45) {
+        mentalHealthMessageElement.innerText = "Your Mental Health is Not Good. Give rest to your mind and visit a doctor.";
+    } else if (mentalHealthScore >= 45 && mentalHealthScore <= 85) {
+        mentalHealthMessageElement.innerText = "Your Mental Health is Good. You can relax and work harder.";
+    } else {
+        mentalHealthMessageElement.innerText = "Your Mental Health is Awesome. You are fully energetic to Rock!";
+    }
+}
+
+
+// Initial display
+displayQuestion();
+
+    </script>
+</body>
+</html>

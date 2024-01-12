@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Your Mental Status</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #4caf50;
+        }
+
+        p {
+            color: #555;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #4caf50;
+        }
+
+        select {
+            font-size: 16px;
+            padding: 8px;
+            margin-top: 8px;
+            border: 1px solid #4caf50;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: #fff;
+            font-size: 16px;
+            padding: 10px 20px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Check Your Mental Status</h1>
+    
+    <p>“Your mental health is a priority. Your happiness is essential. Your self-care is a necessity.”</p>
+    
+    <label for="ageGroup">Select your age group:</label>
+    <select id="ageGroup">
+        <option value="cat-1.html">Under 18</option>
+        <option value="cat-2.html">18 to 30</option>
+        <option value="cat-3.html">Above 30</option>
+    </select>
+
+    <button onclick="redirectToCategory()">Submit</button>
+
+    <script>
+        function redirectToCategory() {
+            var selectedValue = document.getElementById("ageGroup").value;
+            window.location.href = selectedValue;
+        }
+    </script>
+</body>
+</html>
